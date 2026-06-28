@@ -1,0 +1,57 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16        # official pgvector image, pg16 is the postgres version
+    container_name: technorag_db
+    environment:
+      POSTGRES_USER: ${DB_USER}          # pulled from .env, docker compose reads .env automatically
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"                # host:container, DB_PORT in .env maps to postgres default 5432 inside container
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # named volume, persists data across container restarts, docker manages it
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]  # checks postgres is actually accepting connections, not just started
+      interval: 10s                      # check every 10s
+      timeout: 5s                        # fail if no response in 5s
+      retries: 5                         # mark unhealthy after 5 consecutive failures
+
+  api:
+    build:
+      context: .                         # build context is project root
+      dockerfile: docker/Dockerfile.api  # separate dockerfile, api has its own dependencies
+    container_name: technorag_api
+    env_file: .env                       # injects all .env vars into container environment
+    ports:
+      - "8000:8000"                      # fastapi default port
+    depends_on:
+      db:
+        condition: service_healthy       # waits for db healthcheck to pass, not just container start
+
+  ingest:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ingest
+    container_name: technorag_ingest
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - ingest                           # excluded from default docker compose up, mirrors cloud run job pattern
+                                         # run explicitly: docker compose --profile ingest up ingest
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.streamlit
+    container_name: technorag_streamlit
+    env_file: .env
+    ports:
+      - "8501:8501"                      # streamlit default port
+    depends_on:
+      - api                              # streamlit talks to fastapi, not directly to postgres
+
+volumes:
+  pgdata:                                # named volume declaration, without this docker compose throws an error
+                                         # on GCP this role is played by cloud SQL, compose is local dev only

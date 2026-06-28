@@ -1,5 +1,6 @@
-import logging 
 from contextlib import contextmanager
+import logging 
+from typing import Any
 
 import psycopg2
 import psycopg2.extras # RealDictCursor, execute_batch
@@ -32,7 +33,7 @@ def db_connection():
     finally:
         conn.close()
 
-def execute_query(sql: str, params: tuple | None = None) -> list[dict[str]]:
+def execute_query(sql: str, params: tuple | None = None) -> list[dict[str, Any]]:
     "Execute a SELECT query and return all the records as list of dicts."
     with db_connection() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
