@@ -1,2 +1,8 @@
 python==3.13.5
 docker
+feedparser
+trafilature
+llama-index-core
+llama-index-embeddings-voyageai
+voyageai
+litellm
