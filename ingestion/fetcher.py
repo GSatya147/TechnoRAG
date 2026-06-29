@@ -5,7 +5,8 @@ import json
 import trafilatura
 from dateutil import parser as dateutil_parser
 
-from ingestion.feeds import FeedEntry, fetch_all_feed, FEEDS, HEADERS, logger
+from ingestion.feeds import FeedEntry, fetch_all_feed, FEEDS, HEADERS
+from configurables.config import MAX_ARTICLES, logger
 
 @dataclass
 class FetchedArticle:
@@ -23,7 +24,7 @@ def _parse_date(date_str: str | None) -> datetime | None:
     try:
         dt = dateutil_parser.parse(date_str)
         if dt.tzinfo is None:
-            dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=timezone.utc)
 
         return dt
 
@@ -47,7 +48,7 @@ def article_fetcher(entry: FeedEntry) -> FetchedArticle:
         result_json = trafilatura.extract(
             raw_html,
             output_format="json",
-            include_metadata=True,
+            with_metadata=True,
             include_comments=False,   # never want comment sections
             include_tables=False,     # flat prose only, no table noise
             favor_precision=True,     # prefer less text over noisy text
@@ -57,16 +58,13 @@ def article_fetcher(entry: FeedEntry) -> FetchedArticle:
             logger.info("Extraction failed for %s", entry.url)
 
             return None
-        
-        with open("./data/article_json.jsonl", "a", encoding="utf-8") as f:
-            f.write(result_json)
-            f.write("\n")
 
         result = json.loads(result_json)
         text = result.get("text", "").strip()
 
-        if text is None:
+        if not text:
             logger.info("No body text found for %s", entry.url)
+            return None
         
         # resolve date
         trafilatura_date = _parse_date(result.get("date"))
@@ -76,7 +74,7 @@ def article_fetcher(entry: FeedEntry) -> FetchedArticle:
         title = result.get("title") or entry.title
 
         fetched_entry = FetchedArticle(
-            src=entry.source,
+            src=entry.src,
             url=entry.url,
             title=title.strip(),
             text=text,
@@ -86,6 +84,7 @@ def article_fetcher(entry: FeedEntry) -> FetchedArticle:
 
         with open("./data/fetched_articles.jsonl", "a", encoding="utf-8") as f:
             f.write(f"{fetched_entry}")
+            f.write("\n")
 
         return fetched_entry
 
@@ -97,7 +96,10 @@ if __name__=="__main__":
     print(len(feed_entries))
 
     article_entries = []
-    # for entry in feed_entries:
-    article_entries.append(article_fetcher(entry=feed_entries[0]))
+    for entry in feed_entries:
+        if len(article_entries) >=MAX_ARTICLES:
+            break
+        result = article_fetcher(entry)
+        article_entries.append(result)
 
-    print(article_entries)
+    # print(article_entries)
