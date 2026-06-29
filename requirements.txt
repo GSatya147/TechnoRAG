@@ -6,3 +6,5 @@ llama-index-core
 llama-index-embeddings-voyageai
 voyageai
 litellm
+python-dateutil
+python-dotenv
