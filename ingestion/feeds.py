@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 import feedparser
@@ -33,18 +33,18 @@ class FeedEntry:
     published_at:   datetime | None
     summary:        str
 
-def _parse_date(entry: dict[str, str]):
+def _parse_date(entry: dict[str, str]) -> datetime:
     try:
         struct = entry.get("published_parsed")
         if struct is None:
             return None
 
-        return datetime(*struct[:6], tzinfo=datetime.timetz.utc) 
+        return datetime(*struct[:6], tzinfo=timezone.utc) 
     
     except Exception as e:
         print(e)
 
-def fetch_feed(source, url, headers):
+def fetch_feed(source: str, url: str, headers: dict[str, str]) -> list[FeedEntry]:
     try:
         parsed = feedparser.parse(url, request_headers=headers)
 
@@ -76,16 +76,16 @@ def fetch_feed(source, url, headers):
     except Exception as e:
         print(e)
 
-def fetch_all_feed(feeds_dict: dict[str, str], headers: dict[str, str]):
-    result = []
+def fetch_all_feed(feeds_dict: dict[str, str], headers: dict[str, str]) -> list[FeedEntry]:
+    all_entries = []
     for source, url in feeds_dict.items():
-        field = fetch_feed(source=source, url=url, headers=headers)
-        result.append(field)
+        entries = fetch_feed(source=source, url=url, headers=headers)
+        all_entries.extend(entries)
 
-        with open("./data/data.jsonl", "a", encoding='utf-8') as f:
-            f.write(f"{field}\n")
+        with open("./data/feedparser_data.jsonl", "a", encoding='utf-8') as f:
+            f.write(f"{entries}\n")
 
-    return result
+    return all_entries
 
 if __name__=="__main__":
     result = fetch_all_feed(FEEDS, HEADERS)
