@@ -53,8 +53,8 @@ def insert_nodes(nodes: list[dict]) -> None:
 
     try: 
         sql = """
-            INSERT INTO article_nodes (article_id, embedding, node_type, chunk_index, chunk_text, metadata)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO article_nodes (article_id, embedding, node_type, chunk_index, chunk_text, tokens_count, metadata)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
 
         params_list = [(
@@ -63,6 +63,7 @@ def insert_nodes(nodes: list[dict]) -> None:
             node["node_type"],
             node["chunk_index"],
             node["chunk_text"],
+            node["tokens_count"],
             json.dumps(node["metadata"]), # psycopg2 expects a JSON string not python dict, then it serialises the JSON string to JSONB for postgres 
 
         ) for node in nodes]

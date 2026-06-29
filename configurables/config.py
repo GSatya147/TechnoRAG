@@ -24,6 +24,7 @@ DB_PASSWORD             = os.getenv("DB_PASSWORD")
 
 # VoyageAI
 VOYAGE_API_KEY          = os.getenv("VOYAGE_API_KEY")
+VOYAGE_EMBEDDING_MODEL  = "voyageai/voyage-4-nano"
 
 # DeepSeek
 DEEPSEEK_API_KEY        = os.getenv("DEEPSEEK_API_KEY")
@@ -37,6 +38,6 @@ LANGFUSE_BASE_URL       = os.getenv("LANGFUSE_BASE_URL")
 # Consts
 MAX_ARTICLES            = 600
 MAX_ARTICLES_TESTING    = 2
-CHUNK_SIZE              = 512
+CHUNK_SIZE              = 1024
 CHUNK_OVERLAP           = int(0.15 * CHUNK_SIZE)
-BATCH_SIZE              = 5000
+BATCH_SIZE              = 20000

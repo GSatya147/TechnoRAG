@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS article_nodes(
     node_type       TEXT NOT NULL CHECK (node_type IN ('summary', 'chunk')),
     chunk_index     INTEGER NOT NULL,
     chunk_text      TEXT NOT NULL,
+    tokens_count     INT NOT NULL,
     metadata        JSONB NOT NULL DEFAULT '{}'
 );
 
