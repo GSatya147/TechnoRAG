@@ -4,7 +4,7 @@ import logging
 
 import feedparser
 
-logger = logging.getLogger(__name__)
+from configurables.config import logger
 
 FEEDS: dict[str, str] = {
     "anthropic":            "https://www.anthropic.com/rss.xml",
