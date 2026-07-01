@@ -25,6 +25,8 @@ DB_PASSWORD             = os.getenv("DB_PASSWORD")
 # VoyageAI
 VOYAGE_API_KEY          = os.getenv("VOYAGE_API_KEY")
 VOYAGE_EMBEDDING_MODEL  = "voyage-4-lite"
+
+# Tokenizer
 SENTENCE_TRANSFORMERS   = "voyageai/voyage-4-nano"
 
 # DeepSeek
