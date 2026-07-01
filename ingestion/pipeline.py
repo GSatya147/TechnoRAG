@@ -53,8 +53,8 @@ def chunking(article_entries, existing_dict):
 
         # summary building
         context = [{"role" : "system", "content" : "You are a summary provder. Provide crisp and comprehensive summary well under 750 words"}, {"role" : "user", "content" : entry.text}]
-        # summary_text = client.generate_response(messages_list=context)
-        summary_text = f"This is summary for {entry.url}"
+        summary_text = client.generate_response(messages_list=context)
+        # summary_text = f"This is summary for {entry.url}"
         summary = summary_node(article=entry, summary_text=summary_text, article_id=article_id)
 
         # chunk nodes
