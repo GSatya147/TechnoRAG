@@ -44,3 +44,10 @@ MAX_ARTICLES_TESTING    = 2
 CHUNK_SIZE              = 1024
 CHUNK_OVERLAP           = int(0.15 * CHUNK_SIZE)
 BATCH_SIZE              = 20000
+TEMPORAL_THRESHOLDS     = {
+        "temporal" : 7,
+        "factual" : 180,
+        "conceptual" : None,
+        "comparative" : 180,
+    }
+CITATION_PATTERN        = r"\[(\d+)\]"
