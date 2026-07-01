@@ -4,7 +4,7 @@ from llama_index.core.schema import TextNode
 from llama_index.core.schema import Document
 from sentence_transformers import SentenceTransformer
 
-from configurables.config import logger, CHUNK_OVERLAP, CHUNK_SIZE, VOYAGE_EMBEDDING_MODEL
+from configurables.config import logger, CHUNK_OVERLAP, CHUNK_SIZE, SENTENCE_TRANSFORMERS
 from ingestion.fetcher import FetchedArticle
 
 splitter = SentenceSplitter(
@@ -12,11 +12,11 @@ splitter = SentenceSplitter(
     chunk_overlap=CHUNK_OVERLAP
 )
 
-def _token_counter(text: str):
-    try:
-        model = SentenceTransformer(VOYAGE_EMBEDDING_MODEL)
-        tokenizer = model.tokenizer
+model = SentenceTransformer(SENTENCE_TRANSFORMERS)
+TOKENIZER = model.tokenizer
 
+def _token_counter(text: str, tokenizer = TOKENIZER):
+    try:
         results = tokenizer.encode(text)
         return len(results)
 
@@ -36,7 +36,7 @@ def build_document(article: FetchedArticle) -> None:
     )
 
 def summary_node(article: FetchedArticle, summary_text: str, article_id: str) -> dict:
-    return {
+    return [{
         "article_id":   article_id,
         "node_type":    "summary",
         "chunk_index":  -1,
@@ -50,7 +50,7 @@ def summary_node(article: FetchedArticle, summary_text: str, article_id: str) ->
         },
         "tokens_count":  _token_counter(summary_text),
         "embedding": None, 
-    }
+    }]
 
 def chunk_article(article: FetchedArticle, article_id) -> list[TextNode]:
     document = build_document(article=article)
@@ -69,5 +69,5 @@ def chunk_article(article: FetchedArticle, article_id) -> list[TextNode]:
             "embedding":    None,         
         })
     
-    logger.info("Produced %d chunk for %s article", len(chunk_dicts), article.url)
+    logger.info("Produced %d chunks for %s article", len(chunk_dicts), article.url)
     return chunk_dicts
