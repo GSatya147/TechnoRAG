@@ -4,7 +4,11 @@ feedparser
 trafilature
 llama-index-core
 llama-index-embeddings-voyageai
+llama-index-llms-openai
+llama-index-llms-openai-like
+llama-index-postprocessor-voyageai-rerank
 voyageai
 litellm
 python-dateutil
-python-dotenv
+python-
+pgvector
