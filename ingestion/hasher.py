@@ -20,12 +20,15 @@ def hash_article(article: FetchedArticle) -> str:
     return hashlib.sha256(normalised.encode("utf-8")).hexdigest()
 
 def is_duplicate(url, content_hash, existing_dicts):
-    if url not in existing_dicts:
-        return False # new article
+    if existing_dicts:
+        if url not in existing_dicts:
+            return False # new article
 
-    if existing_dicts[url] == content_hash:
-        logger.info("existing, Skipped %s", url)
-        return True # existing
+        if existing_dicts[url] == content_hash:
+            logger.info("existing, Skipped %s", url)
+            return True # existing
+        
+        logger.info("Updated article, re-ingesting %s", url)
+        return False 
     
-    logger.info("Updated article, re-ingesting %s", url)
-    return False 
+    return False
