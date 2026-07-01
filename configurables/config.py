@@ -8,7 +8,7 @@ load_dotenv()
 
 logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+        format="%(asctime)s | %(levelname)-8s | %(name)s | \n%(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
@@ -24,11 +24,12 @@ DB_PASSWORD             = os.getenv("DB_PASSWORD")
 
 # VoyageAI
 VOYAGE_API_KEY          = os.getenv("VOYAGE_API_KEY")
-VOYAGE_EMBEDDING_MODEL  = "voyageai/voyage-4-nano"
+VOYAGE_EMBEDDING_MODEL  = "voyage-4-lite"
+SENTENCE_TRANSFORMERS   = "voyageai/voyage-4-nano"
 
 # DeepSeek
 DEEPSEEK_API_KEY        = os.getenv("DEEPSEEK_API_KEY")
-DEEPSEEK_MODEL          = "deepseek-v4-flash"
+DEEPSEEK_MODEL          = "deepseek/deepseek-v4-flash"
 
 # LangFuse
 LANGFUSE_PUBLIC_KEY     = os.getenv("LANGFUSE_PUBLIC_KEY")
