@@ -1,6 +1,6 @@
 import json
 
-from db.db_client import execute_batch, execute_query, execute_write
+from db.db_client import execute_batch, execute_query, execute_write, init_db
 from ingestion.fetcher import FetchedArticle
 from configurables.config import logger 
 
@@ -14,8 +14,8 @@ def insert_articles(article: FetchedArticle, content_hash: str) -> str | None:
     sql = """
         INSERT INTO articles (url, content_hash, published_at, source, title, author, ingest_status)
         VALUES (%s, %s, %s, %s, %s, %s, 'pending')
-        ON CONFLIFT (url) DO NOTHING
-        RETURNING id    
+        ON CONFLICT (url) DO NOTHING
+        RETURNING id;
     """
 
     params = (
@@ -40,7 +40,7 @@ def insert_articles(article: FetchedArticle, content_hash: str) -> str | None:
 
 def update_article_status(article_id: str, status: str) -> None:
     try:
-        sql = "UPDATE articles SET ingest_status = %s WHERE id = %s"
+        sql = "UPDATE articles SET ingest_status = %s WHERE id = %s;"
         params = (status, article_id)
 
         execute_write(sql=sql, params=params)
@@ -54,7 +54,7 @@ def insert_nodes(nodes: list[dict]) -> None:
     try: 
         sql = """
             INSERT INTO article_nodes (article_id, embedding, node_type, chunk_index, chunk_text, tokens_count, metadata)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s);
         """
 
         params_list = [(
@@ -72,4 +72,20 @@ def insert_nodes(nodes: list[dict]) -> None:
 
     except Exception as e:
         logger.error("failed inserting node error: %s, skipping node: %s", e, nodes[0]["article_id"])
+
+def create_db():
+    init_db()
+
+def get_db() -> None:
+    sql1    = "SELECT * FROM articles;"
+    sql2    = "SELECT * FROM article_nodes;"
+    rows1   = execute_query(sql=sql1)
+    rows2   = execute_query(sql=sql2)
+
+    return rows1, rows2
+
+def clear_db() -> None:
+    sql = "DROP TABLE articles, article_nodes CASCADE;"
+
+    execute_write(sql=sql)
     
