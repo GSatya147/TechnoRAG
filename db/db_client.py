@@ -4,6 +4,7 @@ from typing import Any
 
 import psycopg2
 import psycopg2.extras # RealDictCursor, execute_batch
+from pgvector.psycopg2 import register_vector
 
 from configurables.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
@@ -25,6 +26,7 @@ def db_connection():
     "yields a connection, commits on clean exit, rolls back on exception, always closes."
     conn = get_connection()
     try:
+        register_vector(conn)
         yield conn
         conn.commit()
     except Exception:
