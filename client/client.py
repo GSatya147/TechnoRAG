@@ -13,7 +13,8 @@ class Client:
             api_key=DEEPSEEK_API_KEY,
             model=DEEPSEEK_MODEL,
             max_tokens=1500,
-            messages=messages_list
+            messages=messages_list,
+            temperature=0.3
             )
 
             return response.choices[0].message.content
